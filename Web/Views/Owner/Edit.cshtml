@@ -1,0 +1,318 @@
+﻿@model Core.Entities.Owner
+
+@{
+    ViewData["Title"] = "Update Hero Data";
+}
+
+<div class="edit-container animate__animated animate__fadeIn">
+    <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+        <div class="card-header text-white p-4 d-flex justify-content-between align-items-center" style="background-color: #2c3e50;">
+            <h3 class="mb-0 fw-bold"><i class="fas fa-user-edit me-2"></i> Update Your Professional Identity</h3>
+            <span class="badge rounded-pill bg-success px-3 py-2" style="background-color: #1abc9c !important;">Active Editor</span>
+        </div>
+
+        <div class="card-body p-5 bg-light">
+            <form asp-action="Edit" asp-controller="Owner" method="post" enctype="multipart/form-data" id="mainForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="Avatar" id="hiddenAvatar" />
+                <input type="hidden" asp-for="CvUrl" id="hiddenCvUrl" />
+
+                @* الحقول المخفية لإرسال أوامر المسح للـ Controller *@
+                <input type="hidden" name="deleteCv" id="deleteCvFlag" value="false" />
+                <input type="hidden" name="deleteAvatar" id="deleteAvatarFlag" value="false" />
+
+                <div class="row">
+                    @* قسم الصورة الشخصية *@
+                    <div class="col-md-4 text-center mb-4 border-end">
+                        <div class="avatar-container position-relative d-inline-block mb-3">
+                            <label class="fw-bold d-block mb-3 text-muted text-uppercase small letter-spacing-1">Profile Photo</label>
+                            <div class="image-wrapper shadow-sm position-relative">
+                                @if (Model.Avatar != null)
+                                {
+                                    <img src="~/img/@Model.Avatar" id="imgPreview" class="img-thumbnail border-0 p-0" style="width: 180px; height: 180px; object-fit: cover; border-radius: 20px;" />
+                                    @* زرار مسح الصورة الشخصية *@
+                                    <button type="button" id="btnDeleteAvatar" class="btn btn-danger btn-sm position-absolute rounded-circle shadow"
+                                            style="top: -10px; right: -10px; z-index: 10; width: 35px; height: 35px;"
+                                            onclick="markAvatarForDeletion()" title="Remove Photo">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <img src="~/img/default-user.png" id="imgPreview" class="img-thumbnail border-0 p-0" style="width: 180px; height: 180px; border-radius: 20px;" />
+                                }
+                            </div>
+                        </div>
+                        <div class="upload-btn-wrapper">
+                            <button class="btn btn-dark btn-sm w-100 rounded-pill py-2 shadow-sm transition-hover" type="button" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-sync-alt me-2"></i> Change Photo
+                            </button>
+                            <input type="file" name="File" id="fileInput" style="display:none" onchange="previewImage(event)" />
+                        </div>
+                    </div>
+
+                    @* قسم البيانات النصية *@
+                    <div class="col-md-8 ps-md-4">
+                        <div class="section-title-wrapper mb-4">
+                            <h5 class="text-secondary fw-bold"><i class="fas fa-info-circle text-primary me-2"></i> Basic Info</h5>
+                            <hr class="mt-1 mb-0 opacity-10" style="width: 50px; border-top: 3px solid #1abc9c;">
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="FullName" class="form-control border-0 shadow-sm custom-input" placeholder="Your Full Name" />
+                            <label asp-for="FullName">Professional Name</label>
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        @* الحقل الجديد: الإيميل الشخصي *@
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control border-0 shadow-sm custom-input" placeholder="Email Address" />
+                            <label asp-for="Email">Contact Email (for display)</label>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <textarea asp-for="Profile" class="form-control border-0 shadow-sm custom-input" placeholder="Brief Bio" style="height: 100px;"></textarea>
+                            <label asp-for="Profile">Short Bio / Headline</label>
+                            <span asp-validation-for="Profile" class="text-danger"></span>
+                        </div>
+
+                        <div class="section-title-wrapper mt-5 mb-4">
+                            <h5 class="text-secondary fw-bold"><i class="fas fa-share-alt text-primary me-2"></i> Social & Design Presence</h5>
+                            <hr class="mt-1 mb-0 opacity-10" style="width: 50px; border-top: 3px solid #1abc9c;">
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="input-group social-group">
+                                    <span class="input-group-text border-0 bg-white"><i class="fab fa-facebook-f text-primary"></i></span>
+                                    <input asp-for="FacebookUrl" class="form-control border-0 shadow-sm" placeholder="Facebook URL" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group social-group">
+                                    <span class="input-group-text border-0 bg-white"><i class="fab fa-linkedin-in text-info"></i></span>
+                                    <input asp-for="LinkedInUrl" class="form-control border-0 shadow-sm" placeholder="LinkedIn URL" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group social-group">
+                                    <span class="input-group-text border-0 bg-white"><i class="fab fa-github text-dark"></i></span>
+                                    <input asp-for="GithubUrl" class="form-control border-0 shadow-sm" placeholder="GitHub URL" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group social-group">
+                                    <span class="input-group-text border-0 bg-white"><i class="fab fa-behance text-primary"></i></span>
+                                    <input asp-for="BehanceUrl" class="form-control border-0 shadow-sm" placeholder="Behance URL" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-title-wrapper mt-5 mb-4">
+                            <h5 class="text-secondary fw-bold"><i class="fas fa-file-pdf text-primary me-2"></i> About & Curriculum Vitae</h5>
+                            <hr class="mt-1 mb-0 opacity-10" style="width: 50px; border-top: 3px solid #1abc9c;">
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label class="small fw-bold text-muted mb-1">Section Title</label>
+                            <input asp-for="AboutTitle" class="form-control border-0 shadow-sm" />
+                        </div>
+                        <div class="col-12 mb-4">
+                            <label class="small fw-bold text-muted mb-1">Detailed Bio</label>
+                            <textarea asp-for="AboutDescription" class="form-control border-0 shadow-sm" style="height: 120px;"></textarea>
+                        </div>
+
+                        @* قسم الـ CV *@
+                        <div class="col-12 mb-3">
+                            <div class="d-flex justify-content-between align-items-end mb-2">
+                                <label class="small fw-bold text-muted text-uppercase letter-spacing-1 mb-0">Resume / CV (PDF Only)</label>
+                                @if (!string.IsNullOrEmpty(Model.CvUrl))
+                                {
+                                    <button type="button" id="btnDeleteCv" class="btn btn-link text-danger p-0 text-decoration-none small fw-bold transition-hover" onclick="markCvForDeletion()">
+                                        <i class="fas fa-trash-alt me-1"></i> Remove Current CV
+                                    </button>
+                                }
+                            </div>
+
+                            <div class="cv-upload-container shadow-sm position-relative" id="cvDropZone" onclick="document.getElementById('cvInput').click()">
+                                <input type="file" name="cvFile" id="cvInput" hidden accept=".pdf" onchange="updateCvStatus(this)" />
+                                <div class="cv-upload-content text-center p-4">
+                                    <div class="cv-icon-wrapper mb-2">
+                                        <i class="fas fa-cloud-upload-alt fa-3x text-primary animate__animated animate__pulse animate__infinite"></i>
+                                    </div>
+                                    <p class="mb-1 fw-bold text-dark" id="cvFileName">Drag and drop your CV or click to browse</p>
+                                    <p class="text-muted small mb-0">Accepted format: PDF (Max 5MB)</p>
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(Model.CvUrl))
+                                {
+                                    <div class="current-cv-badge" id="currentCvBadge">
+                                        <i class="fas fa-check-circle me-1"></i> Active: @Model.CvUrl
+                                    </div>
+                                }
+                            </div>
+
+                            <div id="deleteNotice" class="alert alert-warning mt-2 d-none py-2 px-3 small animate__animated animate__fadeIn">
+                                <i class="fas fa-exclamation-triangle me-2"></i> Current CV will be deleted upon saving.
+                                <button type="button" class="btn-close float-end small" style="font-size: 0.5rem;" onclick="cancelCvDeletion()"></button>
+                            </div>
+                        </div>
+
+                        @* أزرار التحكم *@
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5 pt-3">
+                            <a asp-action="Index" asp-controller="PortfolioItems" class="btn btn-light px-4 rounded-pill border-0 shadow-sm transition-hover">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success px-5 rounded-pill shadow-lg transition-hover" style="background-color: #1abc9c; border: none;">
+                                <i class="fas fa-save me-2"></i> Save All Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-color: #1abc9c;
+        --secondary-color: #2c3e50;
+    }
+
+    .edit-container {
+        margin-top: 130px;
+        margin-bottom: 50px;
+        max-width: 950px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0 20px;
+    }
+
+    .custom-input, .social-group input, .form-control {
+        border-radius: 12px !important;
+        transition: all 0.3s ease;
+    }
+
+        .custom-input:focus {
+            background-color: #fff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+        }
+
+    .image-wrapper {
+        padding: 5px;
+        background: #fff;
+        border-radius: 25px;
+        display: inline-block;
+        transition: transform 0.3s ease;
+    }
+
+        .image-wrapper:hover {
+            transform: rotate(2deg) scale(1.02);
+        }
+
+    .cv-upload-container {
+        border: 2px dashed #cbd5e0;
+        border-radius: 18px;
+        background-color: #fff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .cv-upload-container:hover {
+            border-color: var(--primary-color);
+            background-color: #f0fff4;
+        }
+
+    .current-cv-badge {
+        background: #e6fffa;
+        color: #2c7a7b;
+        padding: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        border-top: 1px solid #b2f5ea;
+        text-align: center;
+    }
+
+    .transition-hover:hover {
+        transform: translateY(-3px);
+        filter: brightness(1.1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .letter-spacing-1 {
+        letter-spacing: 1px;
+    }
+</style>
+
+<script>
+    // 1. معاينة الصورة الشخصية وتحديث فلاج المسح
+    function previewImage(event) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            document.getElementById('imgPreview').src = reader.result;
+            document.getElementById('deleteAvatarFlag').value = "false";
+            const delBtn = document.getElementById('btnDeleteAvatar');
+            if (delBtn) delBtn.classList.remove('d-none');
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    // 2. منطق مسح الصورة الشخصية
+    function markAvatarForDeletion() {
+        if (confirm("Are you sure you want to remove your profile photo?")) {
+            document.getElementById('deleteAvatarFlag').value = "true";
+            document.getElementById('imgPreview').src = "/img/default-user.png";
+            document.getElementById('btnDeleteAvatar').classList.add('d-none');
+        }
+    }
+
+    // 3. تحديث حالة رفع الـ CV
+    function updateCvStatus(input) {
+        const fileName = input.files[0]?.name;
+        if (fileName) {
+            document.getElementById('cvFileName').innerHTML = `<i class="fas fa-file-pdf me-2"></i> ${fileName}`;
+            document.getElementById('cvFileName').style.color = "#1abc9c";
+            document.getElementById('cvDropZone').style.borderColor = "#1abc9c";
+            document.getElementById('cvDropZone').style.backgroundColor = "#e6fffa";
+            cancelCvDeletion();
+        }
+    }
+
+    // 4. منطق مسح الـ CV
+    function markCvForDeletion() {
+        document.getElementById('deleteCvFlag').value = "true";
+        const badge = document.getElementById('currentCvBadge');
+        if (badge) badge.classList.add('d-none');
+        document.getElementById('deleteNotice').classList.remove('d-none');
+        document.getElementById('btnDeleteCv').classList.add('d-none');
+    }
+
+    function cancelCvDeletion() {
+        document.getElementById('deleteCvFlag').value = "false";
+        const badge = document.getElementById('currentCvBadge');
+        if (badge) badge.classList.remove('d-none');
+        document.getElementById('deleteNotice').classList.add('d-none');
+        const btn = document.getElementById('btnDeleteCv');
+        if (btn) btn.classList.remove('d-none');
+    }
+
+    // 5. Drag and Drop لملف الـ CV
+    const dropZone = document.getElementById('cvDropZone');
+    if (dropZone) {
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = "#1abc9c"; });
+        dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = "#cbd5e0"; });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === "application/pdf") {
+                const input = document.getElementById('cvInput');
+                input.files = files;
+                updateCvStatus(input);
+            }
+        });
+    }
+</script>

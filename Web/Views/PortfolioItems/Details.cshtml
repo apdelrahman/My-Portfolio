@@ -1,0 +1,330 @@
+﻿@model Core.Entities.PortofolioItem
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
+<script src="https://cdn.jsdelivr.net/gh/mcstudios/glightbox/dist/js/glightbox.min.js"></script>
+
+@* --- مربع فحص البيانات --- *@
+<div style="background: #fff3cd; color: #856404; padding: 15px; border: 1px solid #ffeeba; border-radius: 10px; margin: 20px auto; max-width: 1000px; display: flex; justify-content: space-between; align-items: center;">
+    <span>
+        <i class="fas fa-microscope"></i> <strong>حالة الربط:</strong>
+        @(Model.ProjectImages != null ? "✅ الصور وصلت للـ View" : "❌ الصور لم تصل (Null)")
+    </span>
+    <span style="background: #856404; color: #fff; padding: 2px 12px; border-radius: 15px; font-weight: bold;">
+        عدد الصور: @(Model.ProjectImages?.Count ?? 0)
+    </span>
+</div>
+
+<div class="details-container">
+    <h1 class="page-title">Details</h1>
+
+    <div class="details-card">
+        <div class="card-header-custom">
+            <i class="fas fa-info-circle"></i> Portfolio Item Info
+        </div>
+
+        <div class="card-body-custom">
+            @* القسم العلوي: الصورة الأساسية والبيانات *@
+            <div class="portfolio-details-wrapper">
+                <div class="image-section">
+                    <div class="details-img-wrapper">
+                        <a href="~/img/portfolio/@Model.ImageUrl" class="glightbox" data-gallery="main">
+                            <img src="~/img/portfolio/@Model.ImageUrl" alt="@Model.ProjectName" />
+                        </a>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <dl class="custom-dl">
+                        <div class="detail-group">
+                        <dt>@Html.DisplayNameFor(model => model.ProjectName)</dt>
+                        <dd>@Html.DisplayFor(model => model.ProjectName)</dd>
+                </div>
+
+                <div class="detail-group">
+                    <dt>@Html.DisplayNameFor(model => model.Description)</dt>
+                    <dd class="description-text">@Html.DisplayFor(model => model.Description)</dd>
+                </div>
+                </dl>
+            </div>
+        </div>
+
+        @* --- قسم معرض الصور (Gallery) --- *@
+        @if (Model.ProjectImages != null && Model.ProjectImages.Any())
+        {
+            <hr style="margin: 0 30px; border-top: 1px solid #eee;" />
+            <div class="gallery-wrapper" style="padding: 30px;">
+                <h4 style="color: #2c3e50; margin-bottom: 25px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-images" style="color: #1abc9c;"></i>
+                    Project Gallery
+                    <span style="font-size: 0.9rem; background: #1abc9c; color: #fff; padding: 2px 10px; border-radius: 20px;">@Model.ProjectImages.Count Images</span>
+                </h4>
+
+                <div class="gallery-grid">
+                    @foreach (var img in Model.ProjectImages)
+                    {
+                        <div class="gallery-item">
+                            <a href="~/img/portfolio/@img.ImageUrl" class="glightbox" data-gallery="project-gallery">
+                                <img src="~/img/portfolio/@img.ImageUrl" alt="Project Album Image" loading="lazy" />
+                                <div class="overlay">
+                                    <i class="fas fa-search-plus"></i>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div style="padding: 30px; text-align: center; color: #95a5a6;">
+                <i class="fas fa-layer-group fa-3x" style="margin-bottom: 15px; opacity: 0.3;"></i>
+                <p>No additional images found for this project in the database.</p>
+            </div>
+        }
+    </div>
+
+    @* تذييل الكارت: أزرار التحكم *@
+    <div class="card-footer-custom">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-edit">
+            <i class="fas fa-edit"></i> Edit Project
+        </a>
+        <a asp-action="Index" class="btn btn-back">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>
+</div>
+
+<script>
+    // تفعيل مكتبة GLightbox
+    var lightbox = GLightbox({
+        selector: '.glightbox',
+        touchNavigation: true,
+        loop: true,
+        autoplayVideos: true
+    });
+
+    var lightbox = GLightbox({
+        selector: '.glightbox',
+        touchNavigation: true,
+        loop: true,
+        width: '90vw',      // عرض الصورة يكون 90% من عرض الشاشة كحد أقصى
+        height: 'auto',     // الطول يتعدل تلقائياً عشان يحافظ على النسب
+        zoomable: true,     // يسمح للمستخدم بعمل زوم يدوي لو حب
+        draggable: true     // يسمح بسحب الصورة للموبايل
+    });
+</script>
+
+<style>
+    /* الحاوية الأساسية */
+    .details-container {
+        margin: 40px auto 100px;
+        max-width: 1000px;
+        padding: 0 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* العنوان المتحرك */
+    .page-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #2c3e50;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 40px;
+    }
+
+        .page-title::after {
+            content: "";
+            display: block;
+            width: 50%;
+            height: 6px;
+            background-color: #1abc9c;
+            margin-top: 8px;
+            border-radius: 10px;
+        }
+
+    /* تصميم الكارت */
+    .details-card {
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        border: 1px solid #eee;
+    }
+
+    .card-header-custom {
+        background: #2c3e50;
+        color: #fff;
+        padding: 15px 25px;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .portfolio-details-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 30px;
+        gap: 40px;
+        align-items: flex-start;
+    }
+
+    /* الصورة الرئيسية */
+    .details-img-wrapper {
+        width: 250px;
+        height: 250px;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border: 4px solid #f8f9fa;
+        cursor: pointer;
+    }
+
+        .details-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    /* تنسيق النصوص */
+    .info-section {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    .detail-group {
+        margin-bottom: 25px;
+    }
+
+        .detail-group dt {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .detail-group dd {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            font-weight: 700;
+            margin-left: 0;
+        }
+
+    .description-text {
+        font-size: 1.1rem !important;
+        font-weight: 400 !important;
+        line-height: 1.7;
+        color: #555 !important;
+    }
+
+    /* --- تنسيق الجاليري (الشبكة) --- */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 20px;
+    }
+
+    .gallery-item {
+        position: relative;
+        height: 160px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-item .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 188, 156, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 20px rgba(26, 188, 156, 0.3);
+        }
+
+            .gallery-item:hover .overlay {
+                opacity: 1;
+            }
+
+    /* الأزرار */
+    .card-footer-custom {
+        background: #f8f9fa;
+        padding: 20px 30px;
+        display: flex;
+        gap: 15px;
+        border-top: 1px solid #eee;
+    }
+
+    .btn {
+        padding: 12px 25px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-edit {
+        background: #1abc9c;
+        color: #fff;
+    }
+
+        .btn-edit:hover {
+            background: #16a085;
+            transform: scale(1.03);
+        }
+
+    .btn-back {
+        background: #95a5a6;
+        color: #fff;
+    }
+
+        .btn-back:hover {
+            background: #7f8c8d;
+        }
+
+    .gslide img {
+        max-height: 90vh; /* عشان الصورة متطولش عن ارتفاع الشاشة وتضطر تعمل سكرول */
+        object-fit: contain;
+    }
+
+    /* الموبايل */
+    @@media (max-width: 768px) {
+        .portfolio-details-wrapper {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        }
+    }
+</style>

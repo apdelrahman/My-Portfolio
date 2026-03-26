@@ -1,0 +1,427 @@
+﻿@model Web.VewModels.PortfolioViewModel
+
+@{
+    ViewData["Title"] = "Edit Project";
+}
+
+<div class="main-wrapper">
+    <div class="details-container">
+        @* القسم العلوي: العنوان *@
+        <div class="header-section text-center">
+            <h1 class="page-title text-uppercase">Edit Project</h1>
+            <div class="title-divider">
+                <div class="line"></div>
+                <i class="fas fa-edit divider-icon"></i>
+                <div class="line"></div>
+            </div>
+        </div>
+
+        <div class="details-card">
+            @* رأس الكارت *@
+            <div class="card-header-premium">
+                <div class="header-content d-flex align-items-center">
+                    <div class="icon-box">
+                        <i class="fas fa-pen-nib anim-glow"></i>
+                    </div>
+                    <div class="text-box">
+                        <h4 class="m-0">Modify Your Masterpiece</h4>
+                        <p class="m-0 small-text">Update project details and manage your gallery</p>
+                    </div>
+                </div>
+                <div class="status-badge-container">
+                    <span id="statusBadge" class="status-badge @(Model.IsActive ? "bg-success" : "bg-danger")">
+                        @(Model.IsActive ? "Active" : "Inactive")
+                    </span>
+                </div>
+            </div>
+
+            <div class="card-body-custom p-5">
+                <form asp-action="Edit" class="modern-form" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="Id" id="projectIdInput" />
+                    <input type="hidden" asp-for="ImageUrl" />
+
+                    <div class="row">
+                        @* العمود الأيسر: البيانات النصية والتحكم *@
+                        <div class="col-md-7">
+                            <div class="form-group mb-4">
+                                <label asp-for="ProjectName" class="custom-label">Project Title</label>
+                                <div class="input-group-modern">
+                                    <i class="fas fa-heading icon-input"></i>
+                                    <input asp-for="ProjectName" class="input-modern" placeholder="Update project name..." />
+                                </div>
+                                <span asp-validation-for="ProjectName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="Description" class="custom-label">About the Project</label>
+                                <div class="input-group-modern">
+                                    <i class="fas fa-align-left icon-input top-icon"></i>
+                                    <textarea asp-for="Description" class="input-modern" rows="7" placeholder="Update details..."></textarea>
+                                </div>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                            </div>
+
+                            <div class="visibility-control p-4 rounded-3 bg-light border mb-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-dark"><i class="fas fa-eye me-2 text-primary"></i>Project Visibility</h6>
+                                        <p class="small text-muted mb-0">Show or hide this project from the main website.</p>
+                                    </div>
+                                    <div class="custom-control custom-switch toggle-premium">
+                                        <input type="checkbox" asp-for="IsActive" class="custom-control-input" id="visibilityToggle">
+                                        <label class="custom-control-label fw-bold" for="visibilityToggle" id="toggleLabel" style="padding-left: 55px !important;">@(Model.IsActive ? "Online" : "Offline")</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @* عرض الصور مع زر الحذف *@
+                            <div class="existing-gallery mb-4">
+                                <label class="custom-label">Existing Gallery Images</label>
+                                <div class="d-flex flex-wrap gap-3 border p-3 rounded bg-white shadow-sm" id="galleryContainer">
+                                    @if (Model.ExistingImages != null && Model.ExistingImages.Any())
+                                    {
+                                        foreach (var img in Model.ExistingImages)
+                                        {
+                                            <div class="gallery-thumb-wrapper" id="wrapper-@img.Replace(".", "-")">
+                                                <img src="~/img/portfolio/@img" class="gallery-thumb" alt="Gallery Image" />
+                                                <button type="button" class="delete-photo-btn" onclick="executeDelete('@img')">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted p-2 w-100 text-center small no-images-msg">No images in gallery yet.</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        @* العمود الأيمن: المرفقات *@
+                        <div class="col-md-5">
+                            <div class="form-group mb-4">
+                                <label class="custom-label">Main Thumbnail</label>
+                                <div class="edit-img-preview shadow-sm" id="imagePreviewContainer">
+                                    <img src="~/img/portfolio/@Model.ImageUrl" alt="Current Image" id="imgPreview" />
+                                    <div class="overlay-msg">Main Cover</div>
+                                </div>
+                                <div class="upload-zone mt-2 py-3" onclick="document.getElementById('fileInput').click()">
+                                    <i class="fas fa-camera me-2 text-primary"></i> Change Cover
+                                    <input type="file" asp-for="File" id="fileInput" style="display:none" onchange="previewMainImage(this)" />
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label class="custom-label">Add New Gallery Images</label>
+                                <div class="upload-zone-secondary py-4" onclick="document.getElementById('galleryInput').click()">
+                                    <i class="fas fa-images text-success mb-2" style="font-size: 1.5rem;"></i>
+                                    <h6 class="m-0 small fw-bold text-uppercase">Upload Multiple Files</h6>
+                                    <input type="file" asp-for="ProjectImages" id="galleryInput" multiple style="display:none" onchange="updateGalleryCount(this)" />
+                                    <div id="galleryCountDisplay" class="file-name-badge mt-2" style="display:none;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions-footer mt-5">
+                        <button type="submit" class="btn btn-save-premium">
+                            <i class="fas fa-save me-2"></i> Update Project
+                        </button>
+                        <a asp-controller="PortfolioItems" asp-action="Index" class="btn btn-cancel-modern">
+                            <i class="fas fa-arrow-left me-2"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // دالة الحذف الفعلية
+        function executeDelete(imageName) {
+            var projectId = $('#projectIdInput').val();
+
+            if (confirm('Are you sure you want to delete this image?')) {
+                $.ajax({
+                    url: '@Url.Action("DeleteGalleryImage", "PortfolioItems")', 
+                    type: 'POST',
+                    data: {
+                        imageName: imageName,
+                        projectId: projectId
+                    },
+                    success: function (result) {
+                        if (result.success) {
+                            // حذف العنصر من الواجهة (DOM)
+                            // بنستخدم الـ ID اللي فيه اسم الصورة مع تحويل النقطة لشرطة
+                            var safeId = imageName.replace(/\./g, '-');
+                            $('#wrapper-' + safeId).fadeOut(300, function() {
+                                $(this).remove();
+                                // لو مفيش صور خالص، اظهر رسالة
+                                if ($('.gallery-thumb-wrapper').length === 0) {
+                                    $('#galleryContainer').append('<div class="text-muted p-2 w-100 text-center small">No images in gallery yet.</div>');
+                                }
+                            });
+                        } else {
+                            alert('Error: ' + result.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Connection error. Image might still exist.');
+                    }
+                });
+            }
+        }
+
+        // تحكم الـ Toggle
+        document.getElementById('visibilityToggle').addEventListener('change', function () {
+            var label = document.getElementById('toggleLabel');
+            var badge = document.getElementById('statusBadge');
+
+            if (this.checked) {
+                label.innerText = "Online";
+                badge.innerText = "Active";
+                badge.classList.replace('bg-danger', 'bg-success');
+            } else {
+                label.innerText = "Offline";
+                badge.innerText = "Inactive";
+                badge.classList.replace('bg-success', 'bg-danger');
+            }
+        });
+
+        function previewMainImage(input) {
+            var imgPreview = document.getElementById('imgPreview');
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    imgPreview.src = e.target.result;
+                    document.getElementById('imagePreviewContainer').classList.add('new-image-anim');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function updateGalleryCount(input) {
+            var display = document.getElementById('galleryCountDisplay');
+            if (input.files.length > 0) {
+                display.innerText = input.files.length + " new images selected";
+                display.style.display = "inline-block";
+            }
+        }
+    </script>
+}
+
+<style>
+    /* التعديلات الضرورية */
+    .gallery-thumb-wrapper {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        border-radius: 10px;
+        border: 2px solid #eee;
+    }
+
+    .delete-photo-btn {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: #ff4757;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 100;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+        .delete-photo-btn:hover {
+            background: #ff6b81;
+            transform: scale(1.1);
+        }
+
+    .main-wrapper {
+        padding-top: 120px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding-bottom: 60px;
+    }
+
+    .details-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .page-title {
+        font-weight: 900;
+        color: #2c3e50;
+        font-size: 2.5rem;
+    }
+
+    .title-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px 0 40px;
+    }
+
+        .title-divider .line {
+            width: 80px;
+            height: 4px;
+            background: #1abc9c;
+            border-radius: 2px;
+        }
+
+    .divider-icon {
+        color: #2c3e50;
+        margin: 0 15px;
+    }
+
+    .details-card {
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border: 1px solid #e0e6ed;
+        overflow: hidden;
+    }
+
+    .card-header-premium {
+        background: #2c3e50;
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 4px solid #1abc9c;
+        color: white;
+    }
+
+    .icon-box {
+        width: 45px;
+        height: 45px;
+        background: rgba(26, 188, 156, 0.2);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        color: #1abc9c;
+    }
+
+    .status-badge {
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .input-modern {
+        width: 100%;
+        padding: 12px 12px 12px 45px;
+        border: 2px solid #d1d8e0;
+        border-radius: 10px;
+    }
+
+    .icon-input {
+        position: absolute;
+        left: 15px;
+        top: 15px;
+        color: #bdc3c7;
+    }
+
+    .input-group-modern {
+        position: relative;
+    }
+
+    .custom-label {
+        font-weight: 700;
+        color: #2c3e50;
+        font-size: 0.75rem;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .gallery-thumb {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .edit-img-preview {
+        width: 100%;
+        height: 250px;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+        background: #eee;
+    }
+
+        .edit-img-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .upload-zone, .upload-zone-secondary {
+        border: 2px dashed #1abc9c;
+        background: #f8fafc;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        padding: 15px;
+    }
+
+    .form-actions-footer {
+        background: #f8f9fa;
+        padding: 20px 30px;
+        display: flex;
+        gap: 15px;
+        border-top: 1px solid #edf2f7;
+    }
+
+    .btn-save-premium {
+        background: #1abc9c;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 800;
+    }
+
+    .btn-cancel-modern {
+        background: #ecf0f1;
+        color: #7f8c8d;
+        padding: 12px 25px;
+        border-radius: 10px;
+        text-decoration: none;
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.02);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .new-image-anim {
+        animation: pulse 0.4s;
+        border: 2px solid #1abc9c;
+    }
+</style>

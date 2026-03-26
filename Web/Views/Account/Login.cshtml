@@ -1,0 +1,215 @@
+﻿@model Web.Models.LoginViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تسجيل الدخول - لوحة التحكم</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/person-arrow-to-right/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --accent-color: #00d2ff;
+        }
+
+        body {
+            background: var(--primary-gradient);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .login-box {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            padding: 50px 40px;
+            color: white;
+            text-align: center;
+        }
+
+        .logo-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            filter: drop-shadow(0 0 10px var(--accent-color));
+        }
+
+        h2 {
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
+            margin-bottom: 35px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white !important;
+            border-radius: 12px;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+            text-align: right;
+        }
+
+            .form-control:focus {
+                background: rgba(255, 255, 255, 0.1) !important;
+                border-color: var(--accent-color);
+                box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+            }
+
+        .btn-login {
+            background: linear-gradient(to right, #00d2ff, #3a7bd5);
+            color: white;
+            font-weight: bold;
+            border-radius: 12px;
+            padding: 14px;
+            width: 100%;
+            transition: 0.4s;
+            border: none;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            box-shadow: 0 10px 20px rgba(0, 210, 255, 0.2);
+        }
+
+            .btn-login:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 15px 30px rgba(0, 210, 255, 0.4);
+                filter: brightness(1.1);
+            }
+
+        .form-check {
+            margin-top: -10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+        }
+
+        .text-danger {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: block;
+            color: #ff4d4d !important;
+        }
+
+        /* دوائر خلفية جمالية */
+        .bg-circle {
+            position: absolute;
+            z-index: -1;
+            border-radius: 50%;
+            filter: blur(80px);
+        }
+
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            background: #3a7bd5;
+            top: -100px;
+            left: -100px;
+            opacity: 0.4;
+        }
+
+        .circle-2 {
+            width: 250px;
+            height: 250px;
+            background: #00d2ff;
+            bottom: -80px;
+            right: -80px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-box animate__animated animate__zoomIn">
+        <div class="bg-circle circle-1"></div>
+        <div class="bg-circle circle-2"></div>
+
+        <div class="glass-card">
+            <div class="logo-icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h2>مرحباً بك</h2>
+            <p class="subtitle">سجل دخولك لإدارة معرض أعمالك</p>
+
+            <form asp-action="Login" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-group text-end">
+                    <label asp-for="UserName" class="form-label">اسم المستخدم</label>
+                    <input asp-for="UserName" class="form-control" placeholder="أدخل اسم المستخدم" autocomplete="off" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-end">
+                    <label asp-for="Password" class="form-label">كلمة المرور</label>
+                    <input asp-for="Password" class="form-control" type="password" placeholder="••••••••" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                
+
+                <button type="submit" class="btn-login">
+                    دخول النظام <i class="fas fa-sign-in-alt ms-2"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

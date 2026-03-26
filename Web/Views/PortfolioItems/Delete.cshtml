@@ -1,0 +1,391 @@
+﻿@model Core.Entities.PortofolioItem
+
+@{
+    ViewData["Title"] = "Delete Project";
+}
+
+<div class="details-container">
+    <h1 class="page-title">Delete Project</h1>
+
+    @if (Model.ProjectImages == null)
+    {
+        <div style="background: #fff5f5; color: #c53030; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; border: 1px solid #feb2b2;">
+            <i class="fas fa-bug"></i> <strong>Dev Note:</strong> ProjectImages list is NULL. Please ensure <code>.Include(p => p.ProjectImages)</code> is used in the Controller Action.
+        </div>
+    }
+
+    <div class="delete-alert-box">
+        <div class="alert-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="alert-content">
+            <h3>Are you sure you want to delete this?</h3>
+            <p>
+                This action is <strong>irreversible</strong>. You are about to delete
+                <span class="badge-count">1</span> Main Info
+                @if (Model.ProjectImages?.Count > 0)
+                {
+                    <span>and <span class="badge-count">@Model.ProjectImages.Count</span> Gallery Images.</span>
+                }
+            </p>
+        </div>
+    </div>
+
+    <div class="details-card border-danger-custom">
+        <div class="card-header-custom bg-danger-custom">
+            <i class="fas fa-trash-alt"></i> Delete Portfolio Item
+        </div>
+
+        <div class="card-body-custom">
+            <div class="portfolio-details-wrapper">
+                <div class="image-section">
+                    <div class="details-img-wrapper grayscale">
+                        <img src="~/img/portfolio/@Model.ImageUrl" alt="@Model.ProjectName" />
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <dl class="custom-dl">
+                        <div class="detail-group">
+                        <dt>Project Name</dt>
+                        <dd class="text-danger-custom" id="targetProjectName">@Model.ProjectName</dd>
+                </div>
+                <div class="detail-group">
+                    <dt>Description Preview</dt>
+                    <dd class="description-text">@Model.Description</dd>
+                </div>
+                </dl>
+            </div>
+        </div>
+
+        @if (Model.ProjectImages != null && Model.ProjectImages.Any())
+        {
+            <div class="gallery-preview-section">
+                <h5><i class="fas fa-images"></i> Linked Gallery Images (@Model.ProjectImages.Count)</h5>
+                <div class="gallery-thumbs-grid">
+                    @foreach (var img in Model.ProjectImages)
+                    {
+                        <div class="thumb-item">
+                            <img src="~/img/portfolio/@img.ImageUrl" />
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="confirmation-input-section">
+        <p>To confirm, please type <strong>@Model.ProjectName</strong> in the box below:</p>
+        @* تم تعديل الـ oninput لتبسيط تمرير النص *@
+        <input type="text" id="confirmNameInput" class="form-control" autocomplete="off" placeholder="Type project name here..." />
+    </div>
+
+    <div class="card-footer-custom">
+        <form asp-action="Delete" id="deleteForm">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" id="deleteBtn" class="btn btn-delete-final disabled" disabled>
+                <span id="btnText"><i class="fas fa-check"></i> Yes, Delete it</span>
+                <span id="btnLoader" style="display:none;"><i class="fas fa-spinner fa-spin"></i> Deleting...</span>
+            </button>
+            <a asp-action="Index" class="btn btn-back">
+                <i class="fas fa-times"></i> Cancel & Go Back
+            </a>
+        </form>
+    </div>
+</div>
+</div>
+
+<style>
+    .details-container {
+        margin: 120px auto 100px;
+        max-width: 900px;
+        padding: 0 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #c0392b;
+        text-transform: uppercase;
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+        .page-title::after {
+            content: "";
+            display: block;
+            width: 60px;
+            height: 6px;
+            background-color: #e74c3c;
+            margin-top: 10px;
+            border-radius: 10px;
+        }
+
+    .delete-alert-box {
+        background-color: #fff5f5;
+        border-left: 6px solid #e74c3c;
+        padding: 25px;
+        margin-bottom: 30px;
+        border-radius: 12px;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.1);
+    }
+
+    .alert-icon {
+        font-size: 2.2rem;
+        color: #e74c3c;
+    }
+
+    .alert-content h3 {
+        margin: 0;
+        color: #c0392b;
+        font-size: 1.3rem;
+    }
+
+    .alert-content p {
+        margin: 5px 0 0;
+        color: #666;
+    }
+
+    .badge-count {
+        background: #e74c3c;
+        color: white;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    .details-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.08);
+        overflow: hidden;
+        border: 1px solid #eee;
+    }
+
+    .border-danger-custom {
+        border-top: 6px solid #e74c3c;
+    }
+
+    .bg-danger-custom {
+        background: #e74c3c;
+        color: #fff;
+        padding: 18px 30px;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .portfolio-details-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 40px;
+        gap: 40px;
+        background: #fff;
+    }
+
+    .details-img-wrapper {
+        width: 180px;
+        height: 180px;
+        border-radius: 15px;
+        overflow: hidden;
+        filter: grayscale(100%);
+        border: 4px solid #f8f9fa;
+        transition: 0.4s;
+    }
+
+        .details-img-wrapper:hover {
+            filter: grayscale(0%);
+            transform: scale(1.02);
+        }
+
+        .details-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .info-section {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .custom-dl .detail-group {
+        margin-bottom: 25px;
+    }
+
+    .custom-dl dt {
+        font-size: 0.85rem;
+        color: #95a5a6;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+
+    .custom-dl dd {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+        color: #2c3e50;
+    }
+
+    .text-danger-custom {
+        color: #e74c3c !important;
+    }
+
+    .description-text {
+        font-size: 1rem !important;
+        color: #7f8c8d !important;
+        font-weight: 400 !important;
+        line-height: 1.6;
+    }
+
+    .gallery-preview-section {
+        padding: 0 40px 40px;
+        border-top: 1px solid #f8f9fa;
+        padding-top: 30px;
+    }
+
+        .gallery-preview-section h5 {
+            color: #95a5a6;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+    .gallery-thumbs-grid {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .thumb-item {
+        width: 70px;
+        height: 70px;
+        border-radius: 10px;
+        overflow: hidden;
+        opacity: 0.7;
+        border: 2px solid #eee;
+        transition: 0.3s;
+    }
+
+        .thumb-item:hover {
+            opacity: 1;
+            border-color: #e74c3c;
+        }
+
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .confirmation-input-section {
+        background: #fffafa;
+        padding: 30px 40px;
+        border-top: 1px solid #eee;
+    }
+
+        .confirmation-input-section p {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 20px;
+        border: 2px solid #edeff2;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: 0.3s;
+    }
+
+        .form-control:focus {
+            border-color: #e74c3c;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.1);
+        }
+
+    .card-footer-custom {
+        background: #f8f9fa;
+        padding: 25px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn {
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: 0.3s;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-delete-final {
+        background: #e74c3c;
+        color: #fff;
+    }
+
+        .btn-delete-final:hover:not(.disabled) {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-delete-final.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #fab1a0;
+        }
+
+    .btn-back {
+        background: #fff;
+        color: #7f8c8d;
+        border: 2px solid #eee;
+    }
+
+        .btn-back:hover {
+            background: #f8f9fa;
+            color: #2c3e50;
+            border-color: #ddd;
+        }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const confirmInput = document.getElementById('confirmNameInput');
+        const deleteBtn = document.getElementById('deleteBtn');
+        const projectName = `@Html.Raw(Model.ProjectName)`; // استخدام Html.Raw للتعامل مع أي رموز
+
+        confirmInput.addEventListener('input', function() {
+            // المقارنة الذكية: حذف المسافات وتحويل الأحرف لصغيرة
+            const typedValue = confirmInput.value.trim().toLowerCase();
+            const actualName = projectName.trim().toLowerCase();
+
+            if (typedValue === actualName) {
+                deleteBtn.classList.remove('disabled');
+                deleteBtn.disabled = false;
+            } else {
+                deleteBtn.classList.add('disabled');
+                deleteBtn.disabled = true;
+            }
+        });
+
+        document.getElementById('deleteForm').onsubmit = function () {
+            document.getElementById('btnText').style.display = 'none';
+            document.getElementById('btnLoader').style.display = 'inline-block';
+            deleteBtn.classList.add('disabled');
+            deleteBtn.style.pointerEvents = 'none';
+        };
+    });
+</script>

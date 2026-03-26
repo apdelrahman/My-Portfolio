@@ -1,0 +1,370 @@
+﻿@model Web.VewModels.PortfolioViewModel
+
+@{
+    ViewData["Title"] = "Create New Project";
+}
+
+<div class="main-wrapper">
+    <div class="details-container">
+        @* القسم العلوي *@
+        <div class="header-section text-center">
+            <h1 class="page-title text-uppercase">Create New Project</h1>
+            <div class="title-divider">
+                <div class="line"></div>
+                <i class="fas fa-star divider-icon"></i>
+                <div class="line"></div>
+            </div>
+        </div>
+
+        <div class="details-card">
+            @* رأس الكارت *@
+            <div class="card-header-premium">
+                <div class="header-content">
+                    <div class="icon-box">
+                        <i class="fas fa-magic anim-glow"></i>
+                    </div>
+                    <div class="text-box">
+                        <h4 class="m-0">Add New Masterpiece</h4>
+                        <p class="m-0 small-text">Showcase your best work to the world</p>
+                    </div>
+                </div>
+                <span class="status-badge">Step 1: Details</span>
+            </div>
+
+            <div class="card-body-custom p-5">
+                <form asp-action="Create" id="createForm" class="modern-form" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row">
+                        <div class="col-md-7">
+                            @* حقل اسم المشروع *@
+                            <div class="form-group mb-4">
+                                <label asp-for="ProjectName" class="custom-label">Project Title</label>
+                                <div class="input-group-modern" style="position:relative;">
+                                    <i class="fas fa-heading icon-input"></i>
+                                    <input asp-for="ProjectName" class="input-modern" placeholder="e.g. E-Commerce Dashboard" />
+                                </div>
+                                <span asp-validation-for="ProjectName" class="text-danger small"></span>
+                            </div>
+
+                            @* حقل الوصف *@
+                            <div class="form-group mb-4">
+                                <label asp-for="Description" class="custom-label">About the Project</label>
+                                <div class="input-group-modern" style="position:relative;">
+                                    <i class="fas fa-align-left icon-input top-icon"></i>
+                                    <textarea asp-for="Description" class="input-modern" rows="7" placeholder="Describe your work..."></textarea>
+                                </div>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5">
+                            @* منطقة رفع الصورة الأساسية *@
+                            <div class="form-group mb-4">
+                                <label class="custom-label">Main Thumbnail</label>
+                                <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                    <h5 class="fw-bold">Click to Upload Cover</h5>
+                                    <p class="text-muted small">Single Image (PNG, JPG)</p>
+                                    <input type="file" asp-for="File" id="fileInput" style="display:none" onchange="updateFileName(this)" />
+                                    <div id="fileNameDisplay" class="file-name-badge">No file chosen</div>
+                                </div>
+                                <span asp-validation-for="File" class="text-danger small"></span>
+                            </div>
+
+                            @* منطقة رفع الألبوم الجديد (الـ 20 صورة) *@
+                            <div class="form-group mb-4">
+                                <label class="custom-label">Project Gallery (Album)</label>
+                                <div class="upload-zone" id="galleryZone" onclick="document.getElementById('galleryInput').click()" style="border-color: #3498db; background: #f0f7ff;">
+                                    <i class="fas fa-images upload-icon" style="color: #2ecc71; font-size: 2.5rem;"></i>
+                                    <h5 class="fw-bold">Upload Gallery Photos</h5>
+                                    <p class="text-muted small">Select up to 20 images</p>
+                                    <input type="file" asp-for="ProjectImages" id="galleryInput" style="display:none" onchange="updateGalleryCount(this)" multiple />
+                                    <div id="galleryCountDisplay" class="file-name-badge" style="background: #2ecc71;">No images selected</div>
+                                </div>
+                                <span asp-validation-for="ProjectImages" class="text-danger small"></span>
+                            </div>
+
+                            @* صندوق التلميحات *@
+                            <div class="info-tip shadow-sm">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                <span>Projects with galleries get 80% more engagement!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* الأزرار *@
+                    <div class="form-actions-footer mt-5">
+                        <button type="submit" id="submitBtn" class="btn btn-save-premium">
+                            <span class="btn-text"><i class="fas fa-rocket me-2"></i> Launch Project</span>
+                            <span class="btn-loading" style="display:none;"><i class="fas fa-spinner fa-spin me-2"></i> Uploading Masterpiece...</span>
+                        </button>
+                        <a asp-action="Index" class="btn btn-cancel-modern">
+                            <i class="fas fa-times me-2"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // دالة الصورة الأساسية
+        function updateFileName(input) {
+            var display = document.getElementById('fileNameDisplay');
+            var zone = document.getElementById('dropZone');
+            if (input.files && input.files.length > 0) {
+                display.innerText = "Selected: " + input.files[0].name;
+                display.style.display = "inline-block";
+                zone.classList.add('file-selected');
+            }
+        }
+
+        // دالة الألبوم
+        function updateGalleryCount(input) {
+            var display = document.getElementById('galleryCountDisplay');
+            var zone = document.getElementById('galleryZone');
+            var count = input.files.length;
+            if (count > 0) {
+                display.innerText = count + " images selected for gallery";
+                display.style.display = "inline-block";
+                zone.style.borderColor = "#2ecc71";
+            } else {
+                display.innerText = "No images selected";
+                display.style.display = "none";
+                zone.style.borderColor = "#3498db";
+            }
+        }
+
+        // تحويل الزرار لـ Loading وقت الرفع لضمان عدم الخروج من الصفحة
+        document.getElementById('createForm').onsubmit = function () {
+            if ($(this).valid()) {
+                var btn = document.getElementById('submitBtn');
+                btn.classList.add('disabled');
+                btn.style.opacity = "0.7";
+                btn.querySelector('.btn-text').style.display = 'none';
+                btn.querySelector('.btn-loading').style.display = 'inline-block';
+            }
+        };
+    </script>
+}
+
+<style>
+    .main-wrapper {
+        padding-top: 140px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding-bottom: 60px;
+    }
+
+    .details-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .page-title {
+        font-weight: 900;
+        color: #2c3e50;
+        font-size: 2.8rem;
+        letter-spacing: -1px;
+    }
+
+    .title-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px 0 40px;
+    }
+
+        .title-divider .line {
+            width: 80px;
+            height: 4px;
+            background: #1abc9c;
+            border-radius: 2px;
+        }
+
+    .divider-icon {
+        color: #2c3e50;
+        margin: 0 15px;
+        font-size: 1.2rem;
+    }
+
+    .details-card {
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border: 2px solid #e0e6ed;
+        overflow: hidden;
+    }
+
+    .card-header-premium {
+        background: #2c3e50;
+        padding: 25px 35px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 4px solid #1abc9c;
+        color: white;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+    }
+
+    .icon-box {
+        width: 50px;
+        height: 50px;
+        background: rgba(26, 188, 156, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-size: 1.5rem;
+        color: #1abc9c;
+    }
+
+    .small-text {
+        color: #bdc3c7;
+        font-size: 0.85rem;
+    }
+
+    .status-badge {
+        background: #1abc9c;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .custom-label {
+        font-weight: 700;
+        color: #2c3e50;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .input-modern {
+        width: 100%;
+        padding: 15px 15px 15px 50px;
+        border: 2px solid #d1d8e0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: 0.3s;
+    }
+
+        .input-modern:focus {
+            border-color: #1abc9c;
+            outline: none;
+            box-shadow: 0 0 15px rgba(26, 188, 156, 0.1);
+        }
+
+    .icon-input {
+        position: absolute;
+        left: 18px;
+        top: 18px;
+        color: #bdc3c7;
+        z-index: 5;
+    }
+
+    .upload-zone {
+        border: 3px dashed #1abc9c;
+        background: #f8fafc;
+        border-radius: 20px;
+        padding: 30px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 10px;
+    }
+
+        .upload-zone:hover {
+            background-color: #e6f7f4;
+            border-color: #16a085;
+            transform: translateY(-3px);
+        }
+
+    .upload-icon {
+        font-size: 3.5rem;
+        color: #3498db;
+        margin-bottom: 15px;
+    }
+
+    .file-name-badge {
+        display: none;
+        margin-top: 15px;
+        padding: 6px 15px;
+        background: #2c3e50;
+        color: white;
+        border-radius: 20px;
+        font-size: 0.75rem;
+    }
+
+    .form-actions-footer {
+        background: #f8f9fa;
+        padding: 25px 35px;
+        display: flex;
+        gap: 20px;
+        border-top: 2px solid #edf2f7;
+    }
+
+    .btn-save-premium {
+        background: #1abc9c;
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+
+        .btn-save-premium:hover {
+            background: #16a085;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(26, 188, 156, 0.3);
+        }
+
+    .btn-cancel-modern {
+        background: #ecf0f1;
+        color: #7f8c8d;
+        padding: 15px 30px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+    .info-tip {
+        background: #fff9db;
+        border-left: 5px solid #f1c40f;
+        padding: 12px;
+        border-radius: 10px;
+        margin-top: 20px;
+        font-size: 0.85rem;
+        color: #856404;
+    }
+
+    .anim-glow {
+        animation: glow 2s infinite ease-in-out;
+    }
+
+    @@keyframes glow {
+        0%, 100% {
+            text-shadow: 0 0 5px #1abc9c;
+            transform: scale(1);
+        }
+
+        50% {
+            text-shadow: 0 0 20px #1abc9c;
+            transform: scale(1.1);
+        }
+    }
+</style>

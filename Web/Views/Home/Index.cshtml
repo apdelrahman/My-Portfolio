@@ -1,0 +1,809 @@
+﻿@model Web.VewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Portfolio - Home";
+}
+
+@section Styles {
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    <style>
+        /* --- 0. Scroll Progress Bar --- */
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 5px;
+            background: #1abc9c;
+            z-index: 10000;
+            transition: width 0.1s ease;
+        }
+
+        /* --- 0. Custom Cursor --- */
+        #custom-cursor {
+            width: 20px;
+            height: 20px;
+            background: rgba(26, 188, 156, 0.5);
+            border: 2px solid #1abc9c;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 99999;
+            transition: transform 0.1s ease, background 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .cursor-hover {
+            transform: translate(-50%, -50%) scale(2.5) !important;
+            background: rgba(26, 188, 156, 0.2) !important;
+        }
+
+        /* --- 1. تحسينات عامة وسوشيال ميديا --- */
+        .social-icons-contact a {
+            transition: transform 0.3s ease, color 0.3s ease;
+            display: inline-block;
+            margin-right: 25px;
+        }
+
+            .social-icons-contact a:last-child {
+                margin-right: 0;
+            }
+
+            .social-icons-contact a:hover {
+                transform: scale(1.3) translateY(-5px);
+                color: #1abc9c !important;
+            }
+
+        .alert {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* --- 2. تنسيق الـ Portfolio Slider --- */
+        .portfolio-swiper {
+            padding: 20px 10px 60px 10px !important;
+            overflow: hidden;
+        }
+
+        .portfolio-item {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            aspect-ratio: 4 / 3;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            background: #fff;
+            height: 100%;
+            perspective: 1000px; /* For Tilt */
+        }
+
+            .portfolio-item img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.6s ease;
+            }
+
+            .portfolio-item:hover {
+                transform: translateY(-10px) rotateX(2deg) rotateY(2deg); /* Soft Tilt */
+            }
+
+        .portfolio-item-caption {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(26, 188, 156, 0.85) !important;
+            backdrop-filter: blur(15px); /* Increased Blur */
+            -webkit-backdrop-filter: blur(15px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 3;
+            padding: 25px;
+        }
+
+        .portfolio-description-hover {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-top: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease 0.15s;
+            color: #fff;
+        }
+
+        .portfolio-item:hover .portfolio-item-caption {
+            opacity: 1;
+        }
+
+        .portfolio-item:hover .portfolio-description-hover {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .portfolio-item:hover img {
+            transform: scale(1.15);
+        }
+
+        .glass-card-info {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px); /* Increased Blur */
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+            transition: all 0.4s ease;
+            z-index: 2;
+        }
+
+        .portfolio-item:hover .glass-card-info {
+            transform: translateY(-10px);
+            opacity: 0;
+        }
+
+        .portfolio-item h5 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+        }
+
+        /* Swiper Custom Buttons */
+        .swiper-button-next, .swiper-button-prev {
+            color: #1abc9c !important;
+            background: white;
+            width: 50px !important;
+            height: 50px !important;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+            .swiper-button-next:after, .swiper-button-prev:after {
+                font-size: 20px !important;
+                font-weight: bold;
+            }
+
+        .swiper-pagination-bullet-active {
+            background: #1abc9c !important;
+        }
+
+        /* --- 3. الهيدر والـ Hero Section --- */
+        @@keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @@keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @@keyframes pulseFocus {
+            0% {
+                box-shadow: 0 0 0 0 rgba(26, 188, 156, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(26, 188, 156, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(26, 188, 156, 0);
+            }
+        }
+
+        .glass-main-header {
+            background: linear-gradient(-45deg, #1abc9c, #2c3e50, #16a085, #34495e) !important;
+            background-size: 400% 400% !important;
+            animation: gradientBG 15s ease infinite !important;
+            padding: 160px 0 80px;
+        }
+
+        .glass-hero-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px); /* Enhanced Blur */
+            -webkit-backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .glassy-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 6px solid rgba(255,255,255,0.2);
+            object-fit: cover;
+            animation: float 4s ease-in-out infinite;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        /* --- 4. سيكشن About --- */
+        .glass-about-section {
+            background: #1abc9c !important;
+            padding: 80px 0;
+        }
+
+        .glass-about-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px); /* Enhanced Blur */
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 35px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-download-cv {
+            background: white;
+            color: #1abc9c !important;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-weight: bold;
+            border: none;
+            transition: 0.3s;
+        }
+
+            .btn-download-cv:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            }
+
+        /* --- 5. سيكشن Contact والـ Dropzone --- */
+        .rounded-30 {
+            border-radius: 30px !important;
+        }
+
+        .bg-dark-glass {
+            background: #2c3e50;
+        }
+
+        .custom-input {
+            border: none;
+            border-bottom: 2px solid #f0f0f0;
+            border-radius: 10px !important; /* Added for pulse visibility */
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05) !important;
+            transition: all 0.3s ease;
+        }
+
+            .custom-input:focus {
+                border-color: #1abc9c;
+                box-shadow: none;
+                background: white !important;
+                animation: pulseFocus 1.5s infinite; /* Modern Focus Pulse */
+            }
+
+        .dropzone-area {
+            border: 2px dashed #1abc9c;
+            border-radius: 15px;
+            padding: 25px;
+            background: #f9fdfc;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .dropzone-area:hover {
+                background: #f0faf8;
+            }
+
+        .contact-icon-small {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- 6. الجاليري والمودالز --- */
+        .gallery-item {
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            cursor: zoom-in;
+            transition: transform 0.3s ease;
+        }
+
+            .gallery-item:hover {
+                transform: scale(1.05); /* Soft Hover Tilt variant */
+            }
+
+            .gallery-item img {
+                height: 200px;
+                width: 100%;
+                object-fit: cover;
+            }
+
+        #imagePreviewModal {
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 99999;
+        }
+
+            #imagePreviewModal .modal-content {
+                background: transparent;
+            }
+
+        #fullSizeImage {
+            max-height: 85vh;
+            max-width: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 10002;
+            border-radius: 50%;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .nav-btn:hover {
+                background: #1abc9c;
+                color: white;
+            }
+
+        #prevBtn {
+            left: 20px;
+        }
+
+        #nextBtn {
+            right: 20px;
+        }
+
+        /* Soft Modal Transitions */
+        .modal.fade .modal-dialog {
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform: scale(0.8);
+        }
+
+        .modal.show .modal-dialog {
+            transform: scale(1);
+        }
+
+        @@media (max-width: 768px) {
+            .nav-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+            }
+
+            .glass-main-header {
+                padding: 120px 0 60px;
+            }
+
+            #custom-cursor {
+                display: none;
+            }
+            /* Hide cursor on mobile */
+        }
+
+        .modal {
+            overflow-y: auto !important;
+        }
+
+        body.modal-open {
+            overflow: hidden !important;
+            padding-right: 0 !important;
+        }
+    </style>
+}
+
+@* --- Visual Helpers --- *@
+<div id="scroll-progress"></div>
+<div id="custom-cursor"></div>
+
+@* --- Header Section --- *@
+<header class="masthead text-white text-center glass-main-header">
+    <div class="container d-flex align-items-center flex-column">
+        <div class="glass-hero-card animate__animated animate__zoomIn">
+            <div class="profile-img-container mb-4">
+                <img class="glassy-avatar shadow-lg" src="~/img/@Model.Owner.Avatar" alt="Profile Picture">
+            </div>
+            <h1 class="masthead-heading text-uppercase mb-0">@Model.Owner.FullName</h1>
+            <div class="divider-custom divider-light">
+                <div class="divider-custom-line"></div>
+                <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                <div class="divider-custom-line"></div>
+            </div>
+            <p class="masthead-subheading font-weight-light mb-0">@Model.Owner.Profile</p>
+        </div>
+    </div>
+</header>
+
+@* --- Portfolio Section (Slider) --- *@
+<section class="page-section portfolio" id="portfolio">
+    <div class="container">
+        <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0" data-aos="fade-up">Portfolio</h2>
+        <div class="divider-custom" data-aos="fade-up">
+            <div class="divider-custom-line"></div>
+            <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+            <div class="divider-custom-line"></div>
+        </div>
+
+        <div class="swiper portfolio-swiper" data-aos="fade-up">
+            <div class="swiper-wrapper">
+                @foreach (var portfolioItem in Model.PortfolioItems.OrderByDescending(x => x.Id))
+                {
+                    <div class="swiper-slide">
+                        <div class="portfolio-item mx-auto clickable-element" data-toggle="modal" data-target="#item-@portfolioItem.Id">
+                            <div class="portfolio-item-caption d-flex flex-column align-items-center justify-content-center h-100 w-100">
+                                <div class="portfolio-item-caption-content text-center text-white">
+                                    <i class="fas fa-search-plus fa-2x mb-2"></i>
+                                    <h6 class="text-uppercase fw-bold m-0">@portfolioItem.ProjectName</h6>
+                                    <p class="portfolio-description-hover px-3">
+                                        @if (portfolioItem.Description?.Length > 110)
+                                        {
+                                            @(portfolioItem.Description.Substring(0, 110) + "...")
+                                        }
+                                        else
+                                        {
+                                            @portfolioItem.Description
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="glass-card-info">
+                                <h5 class="mb-0">@portfolioItem.ProjectName</h5>
+                            </div>
+                            <img src="~/img/portfolio/@portfolioItem.ImageUrl" alt="@portfolioItem.ProjectName">
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next clickable-element"></div>
+            <div class="swiper-button-prev clickable-element"></div>
+        </div>
+    </div>
+</section>
+
+@* --- About Section --- *@
+<section class="page-section glass-about-section text-white mb-0" id="about">
+    <div class="container">
+        <h2 class="page-section-heading text-center text-uppercase text-white" data-aos="fade-up">
+            @(Model.Owner.AboutTitle ?? "About Me")
+        </h2>
+        <div class="divider-custom divider-light" data-aos="fade-up">
+            <div class="divider-custom-line"></div>
+            <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+            <div class="divider-custom-line"></div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-10" data-aos="fade-up">
+                <div class="glass-about-card p-4 p-md-5 shadow-lg">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 text-center mb-4 mb-md-0">
+                            <div style="width:150px; height:150px; margin:auto; border-radius:25px; overflow:hidden; border:4px solid rgba(255,255,255,0.3);">
+                                <img src="~/img/@Model.Owner.Avatar" alt="About Me" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        </div>
+                        <div class="col-md-9 border-md-start">
+                            <p class="lead px-md-4">@Model.Owner.AboutDescription</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-5">
+            <a class="btn btn-xl btn-download-cv shadow-lg clickable-element" href="~/files/@Model.Owner.CvUrl" download>
+                <i class="fas fa-file-pdf me-2"></i> Download My Resume
+            </a>
+        </div>
+    </div>
+</section>
+
+@* --- Contact Section --- *@
+<section class="page-section" id="contact">
+    <div class="container">
+        <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0" data-aos="fade-up">Get In Touch</h2>
+        <div class="divider-custom" data-aos="fade-up">
+            <div class="divider-custom-line"></div>
+            <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+            <div class="divider-custom-line"></div>
+        </div>
+
+        <div class="row no-gutters shadow-lg rounded-30 overflow-hidden bg-white mx-1" data-aos="fade-up">
+            <div class="col-lg-4 p-5 bg-dark-glass text-white d-flex flex-column justify-content-between">
+                <div>
+                    <h3 class="mb-4">Contact Info</h3>
+                    <p class="opacity-75 mb-5">I am available for freelance projects or full-time roles.</p>
+                    <ul class="list-unstyled mt-5">
+                        <li class="d-flex align-items-center mb-4">
+                            <div class="contact-icon-small"><i class="fas fa-map-marker-alt"></i></div>
+                            <span class="ms-4 fw-light">Mansoura, Egypt</span>
+                        </li>
+                        <li class="d-flex align-items-center mb-4">
+                            <div class="contact-icon-small"><i class="fas fa-envelope"></i></div>
+                            <span class="ms-4 fw-light">@Model.Owner.Email</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="social-icons-contact mt-4">
+                    <a href="#" class="text-white h4 clickable-element"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="text-white h4 clickable-element"><i class="fab fa-github"></i></a>
+                    <a href="#" class="text-white h4 clickable-element"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-8 p-5">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                <form asp-controller="Home" asp-action="Contact" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label small fw-bold">Full Name</label>
+                            <input type="text" name="FullName" class="form-control custom-input" placeholder="Your Name" required>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label small fw-bold">Email Address</label>
+                            <input type="email" name="Email" class="form-control custom-input" placeholder="Your Email" required>
+                        </div>
+                        <div class="col-12 mb-4">
+                            <label class="form-label small fw-bold">Message</label>
+                            <textarea name="Message" class="form-control custom-input" rows="3" placeholder="Write something..." required></textarea>
+                        </div>
+                        <div class="col-12 mb-4">
+                            <label class="form-label small fw-bold">File Attachment</label>
+                            <div class="dropzone-area clickable-element" id="dropzoneBox">
+                                <input type="file" name="file" id="realFileInput" hidden accept=".jpg,.png,.pdf" />
+                                <div class="text-center">
+                                    <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                                    <p class="mb-0" id="fileStatus">Click to Upload or Drag & Drop</p>
+                                    <small class="text-muted">PDF, JPG, PNG (Max 2MB)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 text-center mt-3">
+                            <button type="submit" class="btn btn-primary btn-xl rounded-pill px-5 shadow-lg clickable-element">
+                                Send Message <i class="fas fa-paper-plane ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* --- Modals Section --- *@
+@foreach (var item in Model.PortfolioItems)
+{
+    <div class="portfolio-modal modal fade" id="item-@item.Id" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content border-0" style="background: rgba(255,255,255,0.92); backdrop-filter: blur(25px); border-radius: 30px;">
+                <button type="button" class="close clickable-element" data-dismiss="modal" style="position: absolute; right: 25px; top: 25px; z-index: 999; border:none; background:none;">
+                    <i class="fas fa-times fa-2x text-secondary"></i>
+                </button>
+                <div class="modal-body text-center p-5">
+                    <h2 class="text-uppercase mb-4">@item.ProjectName</h2>
+                    <img class="img-fluid rounded shadow-lg mb-4 preview-trigger clickable-element" src="~/img/portfolio/@item.ImageUrl" style="max-height: 500px; width: 100%; object-fit: contain; cursor: zoom-in;">
+                    <p class="lead mb-5">@item.Description</p>
+
+                    @if (item.ProjectImages != null && item.ProjectImages.Any())
+                    {
+                        <div class="row mt-5">
+                            @foreach (var subImg in item.ProjectImages)
+                            {
+                                <div class="col-md-4">
+                                    <div class="gallery-item shadow-sm">
+                                        <img src="~/img/portfolio/@subImg.ImageUrl" class="img-fluid preview-trigger clickable-element">
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    <button class="btn btn-secondary rounded-pill px-5 mt-4 clickable-element" data-dismiss="modal">Close Project</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* --- Image Preview Modal (Fullscreen) --- *@
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content border-0">
+            <div class="modal-body text-center p-0 position-relative">
+                <button type="button" class="btn-close clickable-element" data-dismiss="modal"
+                        style="position:absolute; top:20px; right:20px; z-index:10001; border:none; background:none; color:white; font-size:3rem; line-height:1;">
+                    &times;
+                </button>
+                <button id="prevBtn" class="nav-btn clickable-element"><i class="fas fa-chevron-left"></i></button>
+                <button id="nextBtn" class="nav-btn clickable-element"><i class="fas fa-chevron-right"></i></button>
+                <img src="" id="fullSizeImage" class="img-fluid animate__animated animate__zoomIn">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <script>
+        // Init AOS
+        AOS.init({ duration: 1000, once: true, offset: 200 });
+
+        // Scroll Progress Bar
+        window.onscroll = function () {
+            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrolled = (winScroll / height) * 100;
+            document.getElementById("scroll-progress").style.width = scrolled + "%";
+        };
+
+        // Custom Cursor Logic
+        const cursor = document.getElementById('custom-cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        document.querySelectorAll('a, button, .clickable-element, input, textarea, .portfolio-item').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('cursor-hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('cursor-hover'));
+        });
+
+        // Initialize Swiper
+        const swiper = new Swiper('.portfolio-swiper', {
+            slidesPerView: 1,
+            spaceBetween: 30,
+            loop: false,
+            centeredSlides: false,
+            autoplay: {
+                delay: 4000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            breakpoints: {
+                640: { slidesPerView: 1 },
+                768: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 },
+            }
+        });
+
+        // Image Preview Gallery Logic
+        let currentImages = [];
+        let currentIndex = 0;
+
+        $(document).on('click', '.preview-trigger', function () {
+            const clickedSrc = $(this).attr('src');
+            const parentModal = $(this).closest('.modal-body');
+
+            currentImages = parentModal.find('.preview-trigger').map(function () {
+                return $(this).attr('src');
+            }).get();
+
+            currentIndex = currentImages.indexOf(clickedSrc);
+            updatePreviewImage();
+            $('#imagePreviewModal').modal('show');
+        });
+
+        function updatePreviewImage() {
+            $('#fullSizeImage').attr('src', currentImages[currentIndex]);
+            if (currentImages.length <= 1) {
+                $('.nav-btn').hide();
+            } else {
+                $('.nav-btn').show();
+            }
+        }
+
+        $('#nextBtn').click(function (e) {
+            e.stopPropagation();
+            currentIndex = (currentIndex + 1) % currentImages.length;
+            updatePreviewImage();
+        });
+
+        $('#prevBtn').click(function (e) {
+            e.stopPropagation();
+            currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+            updatePreviewImage();
+        });
+
+        $(document).on('hidden.bs.modal', '#imagePreviewModal', function () {
+            if ($('.modal.show').length > 0) {
+                $('body').addClass('modal-open');
+            }
+        });
+
+        $(document).keydown(function (e) {
+            if ($('#imagePreviewModal').is(':visible')) {
+                if (e.keyCode == 37) $('#prevBtn').click();
+                if (e.keyCode == 39) $('#nextBtn').click();
+                if (e.keyCode == 27) $('#imagePreviewModal').modal('hide');
+            }
+        });
+
+        // Dropzone Logic
+        const dropBox = document.getElementById('dropzoneBox');
+        const realInput = document.getElementById('realFileInput');
+        const statusText = document.getElementById('fileStatus');
+
+        if (dropBox && realInput) {
+            dropBox.onclick = () => realInput.click();
+
+            dropBox.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropBox.style.background = "#f0faf8";
+            });
+
+            dropBox.addEventListener('dragleave', () => {
+                dropBox.style.background = "#f9fdfc";
+            });
+
+            dropBox.addEventListener('drop', (e) => {
+                e.preventDefault();
+                realInput.files = e.dataTransfer.files;
+                if (realInput.files.length > 0) {
+                    statusText.innerText = "Selected: " + realInput.files[0].name;
+                    statusText.style.color = "#1abc9c";
+                }
+            ذ
+
+            realInput.onchange = (e) => {
+                if (e.target.files.length > 0) {
+                    statusText.innerText = "Selected: " + e.target.files[0].name;
+                    statusText.style.color = "#1abc9c";
+                    statusText.style.fontWeight = "bold";
+                }
+            };
+        }
+    </script>
+}

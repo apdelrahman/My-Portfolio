@@ -1,0 +1,284 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Portfolio - Abderahman Mansour">
+    <meta name="author" content="Abderahman Mansour">
+
+    <title>Portfolio - Abderahman Mansour</title>
+
+    <link href="~/fonts/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+
+    <link href="~/css/freelancer.css" rel="stylesheet">
+    @RenderSection("Styles", required: false)
+
+    <style>
+        body {
+            background-color: #f4f7f6;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1; /* عشان يخلي الفوتر دايماً تحت حتى لو الصفحة فاضية */
+        }
+
+        /* --- 3D Glassy Navbar Responsive --- */
+        #mainNav {
+            background: rgba(44, 62, 80, 0.8) !important;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 10px auto;
+            width: 95%; /* أعرض شوية في الموبايل */
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 8px 0;
+        }
+
+        @@media (min-width: 992px) {
+            #mainNav {
+                margin: 15px auto;
+                width: 90%;
+            }
+
+                #mainNav.navbar-shrink {
+                    width: 85%;
+                    background: rgba(26, 188, 156, 0.9) !important;
+                }
+        }
+
+        /* --- Modern Glass Footer (Responsive) --- */
+        .modern-glass-footer {
+            background: linear-gradient(180deg, rgba(44, 62, 80, 0.95) 0%, rgba(26, 37, 47, 1) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: white;
+            padding: 50px 0 0 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 -15px 35px rgba(0,0,0,0.15);
+        }
+
+        .footer-title {
+            color: #1abc9c;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            font-size: 1rem;
+        }
+
+        /* Social Icons: Optimized for Touch & Desktop */
+        .btn-social {
+            width: 2.8rem !important;
+            height: 2.8rem !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 50% !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s all ease;
+            color: white !important;
+            margin: 0 8px;
+        }
+
+        @@media (min-width: 768px) {
+            .btn-social {
+                width: 3.2rem !important;
+                height: 3.2rem !important;
+            }
+        }
+
+        .btn-social:hover {
+            transform: translateY(-8px);
+            background: #1abc9c !important;
+            border-color: #1abc9c !important;
+            box-shadow: 0 10px 20px rgba(26, 188, 156, 0.4);
+        }
+
+        .copyright-bar {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 0;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Responsive Text Adjustments */
+        @@media (max-width: 768px) {
+            .modern-glass-footer p.lead {
+                font-size: 1rem !important;
+                padding: 0 15px;
+            }
+
+            .footer-title {
+                margin-bottom: 15px;
+            }
+
+            .modern-glass-footer .col-lg-4 {
+                margin-bottom: 40px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2c3e50;
+            border-radius: 10px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #1abc9c;
+            }
+    </style>
+</head>
+
+<body id="page-top">
+
+    <nav class="navbar navbar-expand-lg text-uppercase fixed-top" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand js-scroll-trigger" href="#page-top">
+                <i class="fas fa-layer-group me-2"></i> ABDERAHMAN
+            </a>
+            <button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded-pill" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                Menu <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item mx-0 mx-lg-1">
+                        <a class="nav-link py-3 px-0 px-lg-3 js-scroll-trigger rounded" href="#portfolio">Portfolio</a>
+                    </li>
+                    <li class="nav-item mx-0 mx-lg-1">
+                        <a class="nav-link py-3 px-0 px-lg-3 js-scroll-trigger rounded" href="#about">About</a>
+                    </li>
+                    <li class="nav-item mx-0 mx-lg-1">
+                        <a class="nav-link py-3 px-0 px-lg-3 js-scroll-trigger rounded" href="#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main role="main">
+        @RenderBody()
+    </main>
+
+
+    @using Web.ViewModels
+    <footer class="modern-glass-footer text-center">
+        <div class="container">
+            <div class="row">
+                @{
+                    // بنستخدم داينمك عشان نهرب من مشكلة التعريفات والـ Namespaces
+                    dynamic dynamicModel = Model;
+                    Core.Entities.Owner footerData = null;
+
+                    try
+                    {
+                        // بنجرب نسحب البيانات لو الموديل فيه Owner (بتاع الهوم)
+                        footerData = dynamicModel.Owner;
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            // لو منفعش بنجرب OwenerInfo (بتاع الداشبورد)
+                            footerData = dynamicModel.OwenerInfo;
+                        }
+                        catch
+                        {
+                            // لو إحنا في صفحة الـ Edit بيبقى الموديل نفسه هو الـ Owner
+                            if (Model is Core.Entities.Owner)
+                            {
+                                footerData = (Core.Entities.Owner)Model;
+                            }
+                        }
+                    }
+                }
+
+                @if (footerData != null)
+                {
+                    <div class="col-lg-4 mb-5 mb-lg-0">
+                        <h4 class="footer-title">Location</h4>
+                        <p class="lead mb-0 text-white-50 small">
+                            @if (footerData.Address != null)
+                            {
+                                <span>@footerData.Address.Street, @footerData.Address.City</span>
+                            }
+                            else
+                            {
+                                <span>Mansoura, Dakahliya</span>
+                            }
+                        </p>
+                    </div>
+
+                    <div class="col-lg-4 mb-5 mb-lg-0">
+                        <h4 class="footer-title">Connect</h4>
+                        <div class="d-flex justify-content-center flex-wrap">
+                            @if (!string.IsNullOrEmpty(footerData.FacebookUrl))
+                            {
+                                <a class="btn-social" href="@footerData.FacebookUrl" target="_blank"><i class="fab fa-fw fa-facebook-f"></i></a>
+                            }
+                            @if (!string.IsNullOrEmpty(footerData.LinkedInUrl))
+                            {
+                                <a class="btn-social" href="@footerData.LinkedInUrl" target="_blank"><i class="fab fa-fw fa-linkedin-in"></i></a>
+                            }
+                            @if (!string.IsNullOrEmpty(footerData.GithubUrl))
+                            {
+                                <a class="btn-social" href="@footerData.GithubUrl" target="_blank"><i class="fab fa-fw fa-github"></i></a>
+                            }
+                            @if (!string.IsNullOrEmpty(footerData.BehanceUrl))
+                            {
+                                <a class="btn-social" href="@footerData.BehanceUrl" target="_blank"><i class="fab fa-fw fa-behance"></i></a>
+                            }
+                            @if (!string.IsNullOrEmpty(footerData.CanvaUrl))
+                            {
+                                <a class="btn-social" href="@footerData.CanvaUrl" target="_blank"><i class="fas fa-fw fa-palette"></i></a>
+                            }
+                            @if (!string.IsNullOrEmpty(footerData.InstagramUrl))
+                            {
+                                <a class="btn-social" href="@footerData.InstagramUrl" target="_blank"><i class="fab fa-fw fa-instagram"></i></a>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <h4 class="footer-title">Status</h4>
+                        <p class="lead mb-0 text-white-50 small">
+                            @footerData.Profile
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/jquery.easing.min.js"></script>
+    <script src="~/js/freelancer.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false) 
+
+    
+
+
+</body>
+</html>
