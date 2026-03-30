@@ -10,28 +10,30 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Core.Entities;
 using Core.Interfaces;
-// بننادي على كل الاحتمالات عشان لو الملف في أي فولدر فيهم يشوفه
-using Web.VewModels; 
+using Web.VewModels;
 using Web.ViewModels;
-using Web.Models; 
+using Web.Models;
 
 namespace Web.Controllers
 {
     [Authorize]
     public class PortfolioItemsController : Controller
     {
-        private readonly IWebHostEnvironment _hosting; 
+        private readonly IWebHostEnvironment _hosting;
         private readonly IUnitOfWork<PortofolioItem> _portfolio;
         private readonly IUnitOfWork<Owner> _owner;
+        private readonly IUnitOfWork<Contact> _contact;
 
         public PortfolioItemsController(
             IUnitOfWork<PortofolioItem> portfolio,
             IUnitOfWork<Owner> owner,
+            IUnitOfWork<Contact> contact,
             IWebHostEnvironment hosting)
         {
             _hosting = hosting;
             _portfolio = portfolio;
             _owner = owner;
+            _contact = contact;
         }
 
         public IActionResult Index(int pageNumber = 1)
@@ -41,18 +43,18 @@ namespace Web.Controllers
             int totalItems = allItemsQuery.Count();
 
             var pagedItems = allItemsQuery
-                .OrderByDescending(x => x.Id) 
+                .OrderByDescending(x => x.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
 
-            // تأكد إن ملف DashboardViewModel موجود فعلاً في مجلد VewModels أو ViewModels
             var dashboardData = new DashboardViewModel
             {
                 OwenerInfo = _owner.Entity.GetAll().FirstOrDefault(),
                 PortfolioItems = pagedItems,
                 CurrentPage = pageNumber,
-                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize)
+                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
+                UnreadMessagesCount = _contact.Entity.GetAll().Count()
             };
 
             return View(dashboardData);
