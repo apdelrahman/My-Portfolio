@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -10,29 +10,28 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Core.Entities;
 using Core.Interfaces;
+// بننادي على كل الاحتمالات عشان لو الملف في أي فولدر فيهم يشوفه
+using Web.VewModels; 
 using Web.ViewModels;
-using Web.VewModels;
+using Web.Models; 
 
 namespace Web.Controllers
 {
     [Authorize]
     public class PortfolioItemsController : Controller
     {
-        private readonly IHostingEnvironment _hosting;
+        private readonly IWebHostEnvironment _hosting; 
         private readonly IUnitOfWork<PortofolioItem> _portfolio;
         private readonly IUnitOfWork<Owner> _owner;
-        private readonly IUnitOfWork<Contact> _contact; // إضافة الـ UnitOfWork الخاص بالرسائل
 
         public PortfolioItemsController(
             IUnitOfWork<PortofolioItem> portfolio,
             IUnitOfWork<Owner> owner,
-            IUnitOfWork<Contact> contact, // حقن الخدمة هنا
-            IHostingEnvironment hosting)
+            IWebHostEnvironment hosting)
         {
             _hosting = hosting;
             _portfolio = portfolio;
             _owner = owner;
-            _contact = contact;
         }
 
         public IActionResult Index(int pageNumber = 1)
@@ -41,22 +40,19 @@ namespace Web.Controllers
             var allItemsQuery = _portfolio.Entity.GetAll().AsQueryable();
             int totalItems = allItemsQuery.Count();
 
-            // حساب عدد الرسائل التي لم تُقرأ بعد
-            int unreadMessages = _contact.Entity.GetAll().Count(m => !m.IsRead);
-
             var pagedItems = allItemsQuery
-                .OrderByDescending(x => x.Id)
+                .OrderByDescending(x => x.Id) 
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
 
+            // تأكد إن ملف DashboardViewModel موجود فعلاً في مجلد VewModels أو ViewModels
             var dashboardData = new DashboardViewModel
             {
                 OwenerInfo = _owner.Entity.GetAll().FirstOrDefault(),
                 PortfolioItems = pagedItems,
                 CurrentPage = pageNumber,
-                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
-                UnreadMessagesCount = unreadMessages // تمرير الرقم للـ ViewModel
+                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize)
             };
 
             return View(dashboardData);
@@ -93,9 +89,14 @@ namespace Web.Controllers
             {
                 string fileName = model.ImageUrl;
 
+                string uploads = Path.Combine(_hosting.WebRootPath, "img", "portfolio");
+                if (!Directory.Exists(uploads))
+                {
+                    Directory.CreateDirectory(uploads);
+                }
+
                 if (model.File != null)
                 {
-                    string uploads = Path.Combine(_hosting.WebRootPath, @"img\portfolio");
                     fileName = Guid.NewGuid().ToString() + "_" + model.File.FileName;
                     string fullPath = Path.Combine(uploads, fileName);
                     using (var stream = new FileStream(fullPath, FileMode.Create))
@@ -115,7 +116,6 @@ namespace Web.Controllers
 
                 if (model.ProjectImages != null && model.ProjectImages.Count > 0)
                 {
-                    string uploads = Path.Combine(_hosting.WebRootPath, @"img\portfolio");
                     foreach (var file in model.ProjectImages)
                     {
                         string galleryFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
@@ -168,11 +168,6 @@ namespace Web.Controllers
         {
             if (id != model.Id) return NotFound();
 
-            if (model.ProjectImages != null && model.ProjectImages.Count > 20)
-            {
-                ModelState.AddModelError("ProjectImages", "لا يمكن إضافة أكثر من 20 صورة جديدة.");
-            }
-
             if (ModelState.IsValid)
             {
                 try
@@ -188,9 +183,14 @@ namespace Web.Controllers
                     itemInDb.Description = model.Description;
                     itemInDb.IsActive = model.IsActive;
 
+                    string uploads = Path.Combine(_hosting.WebRootPath, "img", "portfolio");
+                    if (!Directory.Exists(uploads))
+                    {
+                        Directory.CreateDirectory(uploads);
+                    }
+
                     if (model.File != null)
                     {
-                        string uploads = Path.Combine(_hosting.WebRootPath, @"img\portfolio");
                         string fileName = Guid.NewGuid().ToString() + "_" + model.File.FileName;
                         string fullPath = Path.Combine(uploads, fileName);
                         using (var stream = new FileStream(fullPath, FileMode.Create))
@@ -202,7 +202,6 @@ namespace Web.Controllers
 
                     if (model.ProjectImages != null && model.ProjectImages.Count > 0)
                     {
-                        string uploads = Path.Combine(_hosting.WebRootPath, @"img\portfolio");
                         foreach (var file in model.ProjectImages)
                         {
                             string galleryFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
@@ -245,7 +244,7 @@ namespace Web.Controllers
 
                 if (imageToRemove != null)
                 {
-                    string uploads = Path.Combine(_hosting.WebRootPath, @"img\portfolio");
+                    string uploads = Path.Combine(_hosting.WebRootPath, "img", "portfolio");
                     string fullPath = Path.Combine(uploads, imageName);
 
                     if (System.IO.File.Exists(fullPath)) System.IO.File.Delete(fullPath);
@@ -289,7 +288,7 @@ namespace Web.Controllers
 
             if (item != null)
             {
-                string uploads = Path.Combine(_hosting.WebRootPath, @"img\portfolio");
+                string uploads = Path.Combine(_hosting.WebRootPath, "img", "portfolio");
 
                 if (!string.IsNullOrEmpty(item.ImageUrl))
                 {
@@ -318,4 +317,4 @@ namespace Web.Controllers
             return _portfolio.Entity.GetAll().Any(e => e.Id == id);
         }
     }
-} 
+}
