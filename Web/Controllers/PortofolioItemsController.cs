@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http; // مضافة للتعامل مع حدود الطلبات
+using Microsoft.AspNetCore.Http;
 using Core.Entities;
 using Core.Interfaces;
 using Web.ViewModels;
@@ -21,15 +21,18 @@ namespace Web.Controllers
         private readonly IHostingEnvironment _hosting;
         private readonly IUnitOfWork<PortofolioItem> _portfolio;
         private readonly IUnitOfWork<Owner> _owner;
+        private readonly IUnitOfWork<Contact> _contact; // إضافة الـ UnitOfWork الخاص بالرسائل
 
         public PortfolioItemsController(
             IUnitOfWork<PortofolioItem> portfolio,
             IUnitOfWork<Owner> owner,
+            IUnitOfWork<Contact> contact, // حقن الخدمة هنا
             IHostingEnvironment hosting)
         {
             _hosting = hosting;
             _portfolio = portfolio;
             _owner = owner;
+            _contact = contact;
         }
 
         public IActionResult Index(int pageNumber = 1)
@@ -38,8 +41,11 @@ namespace Web.Controllers
             var allItemsQuery = _portfolio.Entity.GetAll().AsQueryable();
             int totalItems = allItemsQuery.Count();
 
+            // حساب عدد الرسائل التي لم تُقرأ بعد
+            int unreadMessages = _contact.Entity.GetAll().Count(m => !m.IsRead);
+
             var pagedItems = allItemsQuery
-                .OrderByDescending(x => x.Id) 
+                .OrderByDescending(x => x.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
@@ -49,10 +55,11 @@ namespace Web.Controllers
                 OwenerInfo = _owner.Entity.GetAll().FirstOrDefault(),
                 PortfolioItems = pagedItems,
                 CurrentPage = pageNumber,
-                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize)
+                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
+                UnreadMessagesCount = unreadMessages // تمرير الرقم للـ ViewModel
             };
 
-    return View(dashboardData);
+            return View(dashboardData);
         }
 
         public IActionResult Details(Guid? id)
@@ -73,12 +80,10 @@ namespace Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // رفع حدود الاستقبال لـ 100 ميجا لهذا الأكشن
         [RequestSizeLimit(104857600)]
         [RequestFormLimits(MultipartBodyLengthLimit = 104857600)]
         public IActionResult Create(PortfolioViewModel model)
         {
-            // التحقق من عدد الصور المرفوعة في الجاليري
             if (model.ProjectImages != null && model.ProjectImages.Count > 20)
             {
                 ModelState.AddModelError("ProjectImages", "عفواً، الحد الأقصى للصور هو 20 صورة فقط للمشروع الواحد.");
@@ -88,7 +93,6 @@ namespace Web.Controllers
             {
                 string fileName = model.ImageUrl;
 
-                // رفع الصورة الأساسية (Thumbnail)
                 if (model.File != null)
                 {
                     string uploads = Path.Combine(_hosting.WebRootPath, @"img\portfolio");
@@ -109,7 +113,6 @@ namespace Web.Controllers
                     ProjectImages = new List<PortfolioImage>()
                 };
 
-                // رفع صور الجاليري بجودة كاملة
                 if (model.ProjectImages != null && model.ProjectImages.Count > 0)
                 {
                     string uploads = Path.Combine(_hosting.WebRootPath, @"img\portfolio");
@@ -120,7 +123,7 @@ namespace Web.Controllers
 
                         using (var stream = new FileStream(galleryPath, FileMode.Create))
                         {
-                            file.CopyTo(stream); // حفظ الملف كما هو لضمان أعلى جودة
+                            file.CopyTo(stream);
                         }
                         item.ProjectImages.Add(new PortfolioImage { ImageUrl = galleryFileName });
                     }
@@ -165,7 +168,6 @@ namespace Web.Controllers
         {
             if (id != model.Id) return NotFound();
 
-            // التحقق من عدد الصور الجديدة + القديمة لو حبيت تقيد الإجمالي
             if (model.ProjectImages != null && model.ProjectImages.Count > 20)
             {
                 ModelState.AddModelError("ProjectImages", "لا يمكن إضافة أكثر من 20 صورة جديدة.");
@@ -316,4 +318,4 @@ namespace Web.Controllers
             return _portfolio.Entity.GetAll().Any(e => e.Id == id);
         }
     }
-}
+} 
